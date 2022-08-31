@@ -37,6 +37,10 @@ dependencies:
   firebase_auth: ^3.7.0
   firebase_core: ^1.21.1
   cloud_firestore: ^3.4.6
+  image_picker: ^0.8.5+3
+  image_cropper: ^3.0.0
+  firebase_storage: ^10.3.7
+  awesome_snackbar_content: ^0.0.8
 
 dev_dependencies:
   flutter_test:

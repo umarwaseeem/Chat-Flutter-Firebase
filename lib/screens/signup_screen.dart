@@ -42,60 +42,80 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void toCompleteProfileScreen() {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        fullscreenDialog: true,
-        builder: (context) => const CompleteProfileScreen(),
-      ),
-    );
-  }
-
   void signUp(String email, String password) async {
     setState(() {
       loading = true;
     });
     print("inside signup");
-    UserCredential? credential;
-    print("inside try");
-    credential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    )
-        .whenComplete(() {
-      print('complete');
-      setState(() {
-        loading = false;
+    try {
+      UserCredential? credential;
+      print("inside try");
+      credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      )
+          .whenComplete(() {
+        print('complete');
+        setState(() {
+          loading = false;
+        });
       });
-    });
-    print("done");
+      print("done");
 
-    String userId = credential.user!.uid;
-    String name = email.substring(0, email.indexOf('@'));
+      String userId = credential.user!.uid;
+      String name = email.substring(0, email.indexOf('@'));
 
-    print("User: $userId");
+      print("User Id Obtainer: $userId");
 
-    UserModel userData = UserModel(
-      userId: userId,
-      userEmail: email,
-      userName: name,
-      userDpUrl: "",
-      password: password,
-    );
+      UserModel userData = UserModel(
+        userId: userId,
+        userEmail: email,
+        userName: name,
+        userDpUrl: "",
+        password: password,
+      );
 
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(name)
-        .set(
-          userData.toMap(),
-        )
-        .then(
-      (value) {
-        print("User Created");
-      },
-    );
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(name)
+          .set(
+            userData.toMap(),
+          )
+          .then(
+        (value) {
+          const AlertDialog(
+            backgroundColor: Colors.green,
+            title: Text(
+              "Success",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            content: Text(
+              "Account Created Successfully",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          );
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              fullscreenDialog: true,
+              builder: (context) => CompleteProfileScreen(
+                userModel: userData,
+                user: credential!.user!,
+              ),
+            ),
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+      // snackbar
+      
+    }
   }
 
   @override
