@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "103649758550",
+    "project_id": "chat-firebase-4ff38",
+    "storage_bucket": "chat-firebase-4ff38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103649758550:android:38a5dd7cf56ad680af1af7",
+        "android_client_info": {
+          "package_name": "com.umar.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "103649758550-0m6dd00pnds2elf2gs1v6tjh8dcabueb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9x3FheBAry5rFttplRf44EPnqBhrsKOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "103649758550-0m6dd00pnds2elf2gs1v6tjh8dcabueb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
