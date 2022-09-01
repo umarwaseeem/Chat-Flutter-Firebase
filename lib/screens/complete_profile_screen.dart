@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:app/screens/home_screen.dart';
+import 'package:app/util/snackbar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -104,20 +106,24 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   void uploadData() async {
-    loading = true;
+    setState(() {
+      loading = true;
+    });
     try {
-      UploadTask uploadTask = FirebaseStorage.instance
-          .ref("profilePictures")
-          .child(widget.userModel.userName.toString())
-          .putFile(
-            imageFile!,
-          );
+      if (imageFile != null) {
+        UploadTask uploadTask = FirebaseStorage.instance
+            .ref("profilePictures")
+            .child(widget.userModel.userName.toString())
+            .putFile(
+              imageFile!,
+            );
 
-      TaskSnapshot snapshot = await uploadTask;
-      String imageUrl = await snapshot.ref.getDownloadURL();
+        TaskSnapshot snapshot = await uploadTask;
+        String imageUrl = await snapshot.ref.getDownloadURL();
+        widget.userModel.userDpUrl = imageUrl;
+      }
       String fullName = nameConroller.text;
       widget.userModel.userName = fullName;
-      widget.userModel.userDpUrl = imageUrl;
 
       FirebaseFirestore.instance
           .collection("users")
@@ -127,9 +133,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           )
           .then((value) {
         log("\x1B[32muploaded\x1B[0m");
-        loading = false;
+        setState(() {
+          loading = false;
+        });
+        MySnackbar.successSnackBar("Profile info set successfully");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
       });
-    } on Exception catch (e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(e.toString()));
     }
   }
@@ -180,7 +191,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 loading
-                    ? const CircularProgressIndicator()
+                    ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
                         onPressed: buttonEnabled
                             ? () {

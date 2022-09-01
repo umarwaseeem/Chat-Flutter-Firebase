@@ -24,10 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             IconButton(
               onPressed: () {
+                Navigator.pop(context);
                 FirebaseAuth.instance.signOut();
                 ScaffoldMessenger.of(context).showSnackBar(
                     MySnackbar.successSnackBar("Logged Out Successfully"));
-                Navigator.pop(context);
               },
               icon: const Icon(Icons.logout),
             )
@@ -42,7 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => SearchScreen(
-                    userModel: widget.userModel, firebaseUser: widget.firebaseUser),
+                    userModel: widget.userModel,
+                    firebaseUser: widget.firebaseUser),
               ),
             );
           },

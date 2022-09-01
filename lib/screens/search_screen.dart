@@ -59,9 +59,12 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 30),
               StreamBuilder(
+                // dummy data
+                initialData:
+                    FirebaseFirestore.instance.collection('users').get(),
                 stream: FirebaseFirestore.instance
                     .collection("users")
-                    .where("userEmail", isEqualTo: _searchController.text)
+                    .where("userName", isEqualTo: _searchController.text)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,19 +77,43 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (querySnapshot.docs.isEmpty) {
                         return const Text("No Results Found");
                       } else {
-                        Map<String, dynamic> userMap = querySnapshot.docs[0]
-                            .data() as Map<String, dynamic>;
-                        UserModel searchedUser = UserModel.fromMap(userMap);
-                        return ListTile(
-                          onTap: () {},
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              searchedUser.userDpUrl.toString(),
-                            ),
+                        // Map<String, dynamic> userMap = querySnapshot.docs[0]
+                        //     .data() as Map<String, dynamic>;
+                        // UserModel searchedUser = UserModel.fromMap(userMap);
+                        // return ListTile(
+                        //   onTap: () {},
+                        //   leading: CircleAvatar(
+                        //     backgroundImage: NetworkImage(
+                        //       searchedUser.userDpUrl.toString(),
+                        //     ),
+                        //   ),
+                        //   trailing: const Icon(Icons.arrow_right),
+                        //   title: Text(searchedUser.userName.toString()),
+                        //   subtitle: Text(searchedUser.userEmail.toString()),
+                        // );
+                        return Expanded(
+                          child: ListView.builder(
+                            itemCount: querySnapshot.docs.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> userMap =
+                                  querySnapshot.docs[index].data()
+                                      as Map<String, dynamic>;
+                              UserModel searchedUser =
+                                  UserModel.fromMap(userMap);
+                              return ListTile(
+                                onTap: () {},
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    searchedUser.userDpUrl.toString(),
+                                  ),
+                                ),
+                                trailing: const Icon(Icons.arrow_right),
+                                title: Text(searchedUser.userName.toString()),
+                                subtitle:
+                                    Text(searchedUser.userEmail.toString()),
+                              );
+                            },
                           ),
-                          trailing: const Icon(Icons.arrow_right),
-                          title: Text(searchedUser.userName.toString()),
-                          subtitle: Text(searchedUser.userEmail.toString()),
                         );
                       }
 
