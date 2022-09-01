@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,31 +43,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  var signupSnackBar = SnackBar(
+    elevation: 0,
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Colors.transparent,
+    content: AwesomeSnackbarContent(
+      title: 'Success',
+      message: 'Your account was created successfully',
+      contentType: ContentType.success,
+    ),
+  );
+
   void signUp(String email, String password) async {
     setState(() {
       loading = true;
     });
-    print("inside signup");
     try {
       UserCredential? credential;
-      print("inside try");
       credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
         email: email,
         password: password,
       )
           .whenComplete(() {
-        print('complete');
         setState(() {
           loading = false;
         });
       });
-      print("done");
 
       String userId = credential.user!.uid;
       String name = email.substring(0, email.indexOf('@'));
 
-      print("User Id Obtainer: $userId");
+      print("User Id Obtained: $userId");
 
       UserModel userData = UserModel(
         userId: userId,
@@ -84,21 +92,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           )
           .then(
         (value) {
-          const AlertDialog(
-            backgroundColor: Colors.green,
-            title: Text(
-              "Success",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            content: Text(
-              "Account Created Successfully",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          );
           Navigator.push(
             context,
             CupertinoPageRoute(
@@ -111,10 +104,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         },
       );
+      ScaffoldMessenger.of(context).showSnackBar(signupSnackBar);
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      // snackbar
-      
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          content: AwesomeSnackbarContent(
+            title: 'Error',
+            message: e.message!,
+            contentType: ContentType.failure,
+          ),
+        ),
+      );
     }
   }
 

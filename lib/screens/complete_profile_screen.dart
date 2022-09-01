@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,6 +29,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   bool buttonEnabled = false;
   bool loading = false;
   final _formKey = GlobalKey<FormState>();
+  bool uploaded = false;
 
   void selectImage(ImageSource source) async {
     XFile? pickedImage = await ImagePicker().pickImage(source: source);
@@ -52,6 +54,21 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         imageFile = File(croppedImage.path);
       });
     }
+  }
+
+  SnackBar errorSnackBar(String message) {
+    return SnackBar(
+      duration: const Duration(seconds: 3),
+      width: double.infinity,
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: 'Error',
+        message: message,
+        contentType: ContentType.failure,
+      ),
+    );
   }
 
   void showPhotoOptions() {
@@ -88,29 +105,33 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   void uploadData() async {
     loading = true;
-    UploadTask uploadTask = FirebaseStorage.instance
-        .ref("profilePictures")
-        .child(widget.userModel.userId.toString())
-        .putFile(
-          imageFile!,
-        );
+    try {
+      UploadTask uploadTask = FirebaseStorage.instance
+          .ref("profilePictures")
+          .child(widget.userModel.userName.toString())
+          .putFile(
+            imageFile!,
+          );
 
-    TaskSnapshot snapshot = await uploadTask;
-    String imageUrl = await snapshot.ref.getDownloadURL();
-    String fullName = nameConroller.text;
-    widget.userModel.userName = fullName;
-    widget.userModel.userDpUrl = imageUrl;
+      TaskSnapshot snapshot = await uploadTask;
+      String imageUrl = await snapshot.ref.getDownloadURL();
+      String fullName = nameConroller.text;
+      widget.userModel.userName = fullName;
+      widget.userModel.userDpUrl = imageUrl;
 
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(fullName)
-        .set(
-          widget.userModel.toMap(),
-        )
-        .then((value) {
-      log("uploaded");
-      loading = false;
-    });
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(fullName)
+          .set(
+            widget.userModel.toMap(),
+          )
+          .then((value) {
+        log("\x1B[32muploaded\x1B[0m");
+        loading = false;
+      });
+    } on Exception catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(e.toString()));
+    }
   }
 
   @override

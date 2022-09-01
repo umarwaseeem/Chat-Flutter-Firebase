@@ -1,9 +1,11 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../util/vaidators.dart';
+import 'home_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  // - state functions
   @override
   void initState() {
     emailController.text = '';
@@ -38,36 +41,87 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // - snackbars
+  var loginSnackBar = SnackBar(
+    elevation: 0,
+    width: double.infinity,
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Colors.transparent,
+    content: AwesomeSnackbarContent(
+      title: 'Success',
+      message: 'You have logged in successfully',
+      contentType: ContentType.success,
+    ),
+  );
+
+  SnackBar loginErrorSnackBar(FirebaseAuthException e) {
+    return SnackBar(
+      duration: const Duration(seconds: 3),
+      width: double.infinity,
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: 'Error',
+        message: e.message.toString(),
+        contentType: ContentType.failure,
+      ),
+    );
+  }
+
+  void toHomeScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
+  // - login functionality
   void login(String email, String password) async {
     setState(() {
       loading = true;
     });
-    UserCredential? credential;
-    credential = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        )
-        .whenComplete(
-          () => setState(
+    try {
+      UserCredential? credential;
+      credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      )
+          .whenComplete(
+        () {
+          setState(
             () {
               loading = false;
             },
-          ),
-        );
+          );
+          toHomeScreen();
+        },
+      );
+      // credential.user?.getIdToken().then((token) {
+      //   print("\x1B[32m$token\x1B[0m");
+      // });
+      String? userId = credential.user!.uid;
+      String name = email.substring(0, email.indexOf('@'));
 
-    String? userId = credential.user!.uid;
-    String name = email.substring(0, email.indexOf('@'));
-
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(name)
-        .get()
-        .then((value) {
-      print(value.data());
-    });
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(name)
+          .get()
+          .then((value) {
+        print("data obtained $value");
+      });
+      ScaffoldMessenger.of(context).showSnackBar(loginSnackBar);
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        loginErrorSnackBar(e),
+      );
+    }
   }
 
+  // -rendering login ui
   @override
   Widget build(BuildContext context) {
     return Scaffold(
