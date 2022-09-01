@@ -1,3 +1,4 @@
+import 'package:app/screens/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -101,10 +102,25 @@ class _SearchScreenState extends State<SearchScreen> {
                               UserModel searchedUser =
                                   UserModel.fromMap(userMap);
                               return ListTile(
-                                onTap: () {},
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    searchedUser.userDpUrl.toString(),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatRoom(
+                                        userName:
+                                            searchedUser.userName.toString(),
+                                        imageUrl:
+                                            searchedUser.userDpUrl.toString(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                leading: Hero(
+                                  tag: searchedUser.userName.toString(),
+                                  child: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      searchedUser.userDpUrl.toString(),
+                                    ),
                                   ),
                                 ),
                                 trailing: const Icon(Icons.arrow_right),
