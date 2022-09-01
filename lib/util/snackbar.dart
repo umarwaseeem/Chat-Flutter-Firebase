@@ -16,4 +16,18 @@ class MySnackbar {
       ),
     );
   }
+  static SnackBar faliureSnackBar(String message) {
+    return SnackBar(
+      duration: const Duration(seconds: 3),
+      width: double.infinity,
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: "Falure",
+        message: message,
+        contentType: ContentType.failure,
+      ),
+    );
+  }
 }

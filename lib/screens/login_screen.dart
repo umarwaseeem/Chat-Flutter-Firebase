@@ -97,12 +97,13 @@ class _LoginScreenState extends State<LoginScreen> {
               loading = false;
             },
           );
-          toHomeScreen();
         },
       );
       // credential.user?.getIdToken().then((token) {
       //   print("\x1B[32m$token\x1B[0m");
       // });
+      toHomeScreen();
+
       String? userId = credential.user!.uid;
       String name = email.substring(0, email.indexOf('@'));
 
@@ -178,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
+                                backgroundColor: Colors.blue,
                               ),
                               onPressed: buttonEnabled
                                   ? () {
