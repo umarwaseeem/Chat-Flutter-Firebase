@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void toHomeScreen(UserModel userModel, User firebaseUser) {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => HomeScreen(

@@ -146,15 +146,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                   UserModel.fromMap(userMap);
                               return ListTile(
                                 onTap: () async {
-                                  ChatRoomModel? chatRoomModel =
+                                  chatRoom =
                                       await getChatRoomModel(searchedUser);
 
-                                  if (chatRoomModel != null) {
+                                  if (chatRoom != null) {
                                     // ignore: use_build_context_synchronously
                                     toChatRoom(
                                       context,
                                       searchedUser,
-                                      chatRoomModel,
+                                      chatRoom!,
                                     );
                                   }
                                 },
@@ -168,8 +168,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ),
                                 trailing: const Icon(Icons.arrow_right),
                                 title: Text(searchedUser.userName.toString()),
-                                subtitle:
-                                    Text(searchedUser.userEmail.toString()),
+                                subtitle: Text(
+                                  chatRoom?.lastMessage.toString() ?? "empty",
+                                ),
                               );
                             },
                           ),

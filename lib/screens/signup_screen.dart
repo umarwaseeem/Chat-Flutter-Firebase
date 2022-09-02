@@ -92,7 +92,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           )
           .then(
         (value) {
-          Navigator.push(
+          Navigator.popUntil(
+            context,
+            (route) {
+              return route.isFirst;
+            },
+          );
+
+          Navigator.pushReplacement(
             context,
             CupertinoPageRoute(
               fullscreenDialog: true,
@@ -193,7 +200,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
+                                backgroundColor: Colors.blue,
                               ),
                               onPressed: buttonEnabled
                                   ? () {

@@ -72,6 +72,14 @@ class _ChatRoomState extends State<ChatRoom> {
           log("Message sent");
         },
       );
+
+      widget.chatRoom?.lastMessage = message;
+      FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(widget.chatRoom?.chatRoomId)
+          .set(
+            widget.chatRoom!.toMap(),
+          );
     }
   }
 

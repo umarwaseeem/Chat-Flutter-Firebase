@@ -138,7 +138,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             loading = false;
           });
           MySnackbar.successSnackBar("Profile info set successfully");
-          Navigator.push(
+          Navigator.popUntil(
+            context,
+            (route) {
+              return route.isFirst;
+            },
+          );
+
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => HomeScreen(

@@ -15,12 +15,9 @@ void main() async {
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   if (currentUser != null) {
-    log("Current user not null");
-    log("currentUser: $currentUser");
     UserModel? currentUserModel =
         await FirebaseHelper.getUserModelById(currentUser.uid);
     if (currentUserModel != null) {
-      log("Current user model not null");
       runApp(
         AppLoggedIn(
           userModel: currentUserModel,
@@ -28,11 +25,9 @@ void main() async {
         ),
       );
     } else {
-      log("Current user model null");
       runApp(const MyApp());
     }
   } else {
-    log("Current user null");
     runApp(const MyApp());
   }
 }
