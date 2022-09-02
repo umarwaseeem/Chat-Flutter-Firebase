@@ -1,10 +1,15 @@
-import 'package:app/screens/chat_room.dart';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
+import '../models/chat_room_model.dart';
 import '../models/user_model.dart';
+
+var uuid = const Uuid();
 
 class SearchScreen extends StatefulWidget {
   final UserModel? userModel;
@@ -20,6 +25,37 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   // bool loading = false;
+
+  Future<ChatRoomModel?> getChatRoomModel(UserModel targetUser) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("chatRooms")
+        .where("participants.${widget.userModel?.userId}", isEqualTo: true)
+        .where("participants.${targetUser.userId}", isEqualTo: true)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+    } else {
+      ChatRoomModel newChatRoom = ChatRoomModel(
+        chatRoomId: uuid.v1(),
+        lastMessage: "",
+        participants: {
+          widget.userModel?.userId.toString(): true,
+          targetUser.userId: true,
+        },
+      );
+      
+      await FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(newChatRoom.chatRoomId)
+          .set(
+            newChatRoom.toMap(),
+          )
+          .whenComplete(
+            () => log("New chat room created"),
+          );
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -78,20 +114,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (querySnapshot.docs.isEmpty) {
                         return const Text("No Results Found");
                       } else {
-                        // Map<String, dynamic> userMap = querySnapshot.docs[0]
-                        //     .data() as Map<String, dynamic>;
-                        // UserModel searchedUser = UserModel.fromMap(userMap);
-                        // return ListTile(
-                        //   onTap: () {},
-                        //   leading: CircleAvatar(
-                        //     backgroundImage: NetworkImage(
-                        //       searchedUser.userDpUrl.toString(),
-                        //     ),
-                        //   ),
-                        //   trailing: const Icon(Icons.arrow_right),
-                        //   title: Text(searchedUser.userName.toString()),
-                        //   subtitle: Text(searchedUser.userEmail.toString()),
-                        // );
                         return Expanded(
                           child: ListView.builder(
                             itemCount: querySnapshot.docs.length,
@@ -102,18 +124,20 @@ class _SearchScreenState extends State<SearchScreen> {
                               UserModel searchedUser =
                                   UserModel.fromMap(userMap);
                               return ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatRoom(
-                                        userName:
-                                            searchedUser.userName.toString(),
-                                        imageUrl:
-                                            searchedUser.userDpUrl.toString(),
-                                      ),
-                                    ),
-                                  );
+                                onTap: () async {
+                                  ChatRoomModel? chatRoomModel =
+                                      await getChatRoomModel(searchedUser);
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => ChatRoom(
+                                  //       firebaseUser: widget.firebaseUser,
+                                  //       targetUser: searchedUser,
+                                  //       userModel: widget.userModel!,
+                                  //       chatRoom: ,
+                                  //     ),
+                                  //   ),
+                                  // );
                                 },
                                 leading: Hero(
                                   tag: searchedUser.userName.toString(),
@@ -132,11 +156,6 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         );
                       }
-
-                      // return ListTile(
-                      //   title: Text(searchedUser.userName.toString()),
-                      //   subtitle: Text(searchedUser.userEmail.toString()),
-                      // );
                     } else if (snapshot.hasError) {
                       return Text(snapshot.error.toString());
                     } else {

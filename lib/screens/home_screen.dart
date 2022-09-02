@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatefulWidget {
   final UserModel? userModel;
   final User? firebaseUser;
-  const HomeScreen({Key? key, this.userModel, this.firebaseUser})
+  const HomeScreen(
+      {Key? key, required this.userModel, required this.firebaseUser})
       : super(key: key);
 
   @override
@@ -38,12 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
+            print(widget.userModel?.userId);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => SearchScreen(
-                    userModel: widget.userModel,
-                    firebaseUser: widget.firebaseUser),
+                  userModel: widget.userModel,
+                  firebaseUser: widget.firebaseUser,
+                ),
               ),
             );
           },

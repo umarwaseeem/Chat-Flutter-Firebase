@@ -86,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       await FirebaseFirestore.instance
           .collection("users")
-          .doc(name)
+          .doc(userId)
           .set(
             userData.toMap(),
           )

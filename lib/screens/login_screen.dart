@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../models/user_model.dart';
 import '../util/vaidators.dart';
 import 'home_screen.dart';
 import 'signup_screen.dart';
@@ -69,11 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void toHomeScreen() {
+  void toHomeScreen(UserModel userModel, User firebaseUser) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => HomeScreen(
+          userModel: userModel,
+          firebaseUser: firebaseUser,
+        ),
       ),
     );
   }
@@ -99,22 +103,19 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         },
       );
-      // credential.user?.getIdToken().then((token) {
-      //   print("\x1B[32m$token\x1B[0m");
-      // });
-      toHomeScreen();
+
 
       String? userId = credential.user!.uid;
       String name = email.substring(0, email.indexOf('@'));
 
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(name)
-          .get()
-          .then((value) {
-        print("data obtained $value");
-      });
+      DocumentSnapshot userData =
+          await FirebaseFirestore.instance.collection("users").doc(name).get();
+      UserModel userModel =
+          UserModel.fromMap(userData.data() as Map<String, dynamic>);
+
       ScaffoldMessenger.of(context).showSnackBar(loginSnackBar);
+
+      toHomeScreen(userModel, credential.user!);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         loginErrorSnackBar(e),

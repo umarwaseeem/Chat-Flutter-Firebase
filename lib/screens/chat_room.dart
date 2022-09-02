@@ -1,9 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../models/chat_room_model.dart';
+import '../models/user_model.dart';
+
 class ChatRoom extends StatefulWidget {
-  final String userName;
-  final String imageUrl;
-  const ChatRoom({Key? key, required this.userName, required this.imageUrl})
+  final UserModel targetUser;
+  final UserModel userModel;
+  final ChatRoomModel? chatRoom;
+  final User? firebaseUser;
+  const ChatRoom({Key? key, required this.chatRoom, required this.userModel, required this.firebaseUser, required this.targetUser})
       : super(key: key);
 
   @override
@@ -12,6 +18,8 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController messageController = TextEditingController();
+
+  bool online = true;
 
   @override
   void initState() {
@@ -29,26 +37,61 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.userName),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundImage:
+                  NetworkImage(widget.targetUser.userName.toString()),
+            ),
+            const SizedBox(width: 15),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.targetUser.userDpUrl.toString()),
+                if (online)
+                  const Text(
+                    "Online",
+                    style: TextStyle(fontSize: 12, color: Colors.green),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+              // expand image on onTap
               Center(
                 child: Hero(
-                  tag: widget.userName,
+                  tag: widget.targetUser.userName.toString(),
                   child: CircleAvatar(
                     radius: 70,
-                    backgroundImage: NetworkImage(widget.imageUrl),
+                    backgroundImage:
+                        NetworkImage(widget.targetUser.userDpUrl.toString()),
                   ),
                 ),
               ),
+
+              Expanded(child: Container()),
               TextField(
                 controller: messageController,
                 decoration: InputDecoration(
+                  prefixIcon: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.keyboard_voice_rounded,
+                    ),
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.send,
+                    ),
+                  ),
                   enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.blueGrey,

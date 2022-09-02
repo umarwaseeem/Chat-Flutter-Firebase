@@ -127,19 +127,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
       FirebaseFirestore.instance
           .collection("users")
-          .doc(fullName)
+          .doc(widget.userModel.userId)
           .set(
             widget.userModel.toMap(),
           )
-          .then((value) {
-        log("\x1B[32muploaded\x1B[0m");
-        setState(() {
-          loading = false;
-        });
-        MySnackbar.successSnackBar("Profile info set successfully");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
-      });
+          .then(
+        (value) {
+          log("\x1B[32muploaded\x1B[0m");
+          setState(() {
+            loading = false;
+          });
+          MySnackbar.successSnackBar("Profile info set successfully");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(
+                userModel: widget.userModel,
+                firebaseUser: widget.user,
+              ),
+            ),
+          );
+        },
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(e.toString()));
     }
