@@ -104,12 +104,13 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       );
 
-
       String? userId = credential.user!.uid;
       String name = email.substring(0, email.indexOf('@'));
 
-      DocumentSnapshot userData =
-          await FirebaseFirestore.instance.collection("users").doc(name).get();
+      DocumentSnapshot userData = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userId)
+          .get();
       UserModel userModel =
           UserModel.fromMap(userData.data() as Map<String, dynamic>);
 
