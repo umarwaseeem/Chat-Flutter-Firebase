@@ -83,6 +83,8 @@ class _ChatRoomState extends State<ChatRoom> {
     }
   }
 
+  var opacityInitial = 0.0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,110 +112,137 @@ class _ChatRoomState extends State<ChatRoom> {
         ),
       ),
       body: SafeArea(
-        child: Container(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Expanded(
-                child: Container(
-                  child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection("chatRooms")
-                        .doc(widget.chatRoom?.chatRoomId)
-                        .collection("messages")
-                        .orderBy("sentTime", descending: true)
-                        .snapshots(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else {
-                        if (snapshot.hasData) {
-                          QuerySnapshot querySnapshot =
-                              snapshot.data as QuerySnapshot;
-                          return ListView.builder(
-                            reverse: true,
-                            itemCount: querySnapshot.docs.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              MessageModel currentMessage =
-                                  MessageModel.fromMap(
-                                querySnapshot.docs[index].data()
-                                    as Map<String, dynamic>,
-                              );
-                              return Row(
-                                mainAxisAlignment: (currentMessage.sender ==
-                                        widget.userModel.userId)
-                                    ? MainAxisAlignment.end
-                                    : MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 10,
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("chatRooms")
+                    .doc(widget.chatRoom?.chatRoomId)
+                    .collection("messages")
+                    .orderBy("sentTime", descending: true)
+                    .snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    if (snapshot.hasData) {
+                      QuerySnapshot querySnapshot =
+                          snapshot.data as QuerySnapshot;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        reverse: true,
+                        itemCount: querySnapshot.docs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          MessageModel currentMessage = MessageModel.fromMap(
+                            querySnapshot.docs[index].data()
+                                as Map<String, dynamic>,
+                          );
+                          return InkWell(
+                            onLongPress: () {
+                              FirebaseFirestore.instance
+                                  .collection("chatRooms")
+                                  .doc(widget.chatRoom?.chatRoomId)
+                                  .collection("messages")
+                                  .doc(currentMessage.messageId)
+                                  .delete();
+                            },
+                            child: Row(
+                              mainAxisAlignment: currentMessage.sender ==
+                                      widget.userModel.userId
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.all(10),
+                                  // alignment: (currentMessage.sender ==
+                                  //         widget.userModel.userId)
+                                  //     ? Alignment.centerRight
+                                  //     : Alignment.centerLeft,
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 250,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
                                     ),
-                                    margin: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: (currentMessage.sender ==
-                                              widget.userModel.userId)
-                                          ? Colors.red
-                                          : Colors.blue,
-                                    ),
-                                    child: Text(
-                                      currentMessage.text.toString(),
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: (currentMessage.sender ==
+                                            widget.userModel.userId)
+                                        ? Colors.red
+                                        : Colors.blue,
+                                  ),
+                                  child: Text(
+                                    currentMessage.text.toString(),
+                                    textAlign: currentMessage.sender ==
+                                            widget.userModel.userId
+                                        ? TextAlign.end
+                                        : TextAlign.start,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                ],
-                              );
-                            },
+                                ),
+                              ],
+                            ),
                           );
-                        } else if (snapshot.hasError) {
-                          return Text(snapshot.error.toString());
-                        } else {
-                          return const Center(
-                            child: Text("No messages"),
-                          );
-                        }
-                      }
-                    },
+                        },
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text(snapshot.error.toString());
+                    } else {
+                      return const Center(
+                        child: Text("No messages"),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+            TextField(
+              controller: messageController,
+              decoration: InputDecoration(
+                prefixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.keyboard_voice_rounded,
+                  ),
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    sendMessage();
+                  },
+                  icon: const Icon(
+                    Icons.send,
+                  ),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueGrey,
+                    width: 2,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(
+                    color: Colors.grey,
+                    width: 2,
                   ),
                 ),
               ),
-              TextField(
-                controller: messageController,
-                decoration: InputDecoration(
-                  prefixIcon: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.keyboard_voice_rounded,
-                    ),
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      sendMessage();
-                    },
-                    icon: const Icon(
-                      Icons.send,
-                    ),
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.blueGrey,
-                      width: 2,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(
-                      color: Colors.grey,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                // styling
-              ),
-            ],
-          ),
+              // styling
+            ),
+          ],
         ),
       ),
     );
