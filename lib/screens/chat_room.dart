@@ -9,7 +9,12 @@ class ChatRoom extends StatefulWidget {
   final UserModel userModel;
   final ChatRoomModel? chatRoom;
   final User? firebaseUser;
-  const ChatRoom({Key? key, required this.chatRoom, required this.userModel, required this.firebaseUser, required this.targetUser})
+  const ChatRoom(
+      {Key? key,
+      required this.chatRoom,
+      required this.userModel,
+      required this.firebaseUser,
+      required this.targetUser})
       : super(key: key);
 
   @override
@@ -42,13 +47,13 @@ class _ChatRoomState extends State<ChatRoom> {
             CircleAvatar(
               radius: 18,
               backgroundImage:
-                  NetworkImage(widget.targetUser.userName.toString()),
+                  NetworkImage(widget.targetUser.userDpUrl.toString()),
             ),
             const SizedBox(width: 15),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.targetUser.userDpUrl.toString()),
+                Text(widget.targetUser.userName.toString()),
                 if (online)
                   const Text(
                     "Online",

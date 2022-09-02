@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:app/screens/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  // bool loading = false;
+  ChatRoomModel? chatRoom = ChatRoomModel();
 
   Future<ChatRoomModel?> getChatRoomModel(UserModel targetUser) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -34,6 +35,9 @@ class _SearchScreenState extends State<SearchScreen> {
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
+      log("ChatRoomModel found");
+      var data = querySnapshot.docs[0].data();
+      chatRoom = ChatRoomModel.fromMap(data as Map<String, dynamic>);
     } else {
       ChatRoomModel newChatRoom = ChatRoomModel(
         chatRoomId: uuid.v1(),
@@ -43,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
           targetUser.userId: true,
         },
       );
-      
+
       await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(newChatRoom.chatRoomId)
@@ -53,8 +57,24 @@ class _SearchScreenState extends State<SearchScreen> {
           .whenComplete(
             () => log("New chat room created"),
           );
+      chatRoom = newChatRoom;
     }
-    return null;
+    return chatRoom;
+  }
+
+  Future<dynamic> toChatRoom(BuildContext context, UserModel searchedUser,
+      ChatRoomModel chatRoomModel) {
+    return Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatRoom(
+          firebaseUser: widget.firebaseUser,
+          targetUser: searchedUser,
+          userModel: widget.userModel!,
+          chatRoom: chatRoomModel,
+        ),
+      ),
+    );
   }
 
   @override
@@ -102,6 +122,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 stream: FirebaseFirestore.instance
                     .collection("users")
                     .where("userName", isEqualTo: _searchController.text)
+                    .where("userName", isNotEqualTo: widget.userModel?.userName)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -127,17 +148,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                 onTap: () async {
                                   ChatRoomModel? chatRoomModel =
                                       await getChatRoomModel(searchedUser);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => ChatRoom(
-                                  //       firebaseUser: widget.firebaseUser,
-                                  //       targetUser: searchedUser,
-                                  //       userModel: widget.userModel!,
-                                  //       chatRoom: ,
-                                  //     ),
-                                  //   ),
-                                  // );
+
+                                  if (chatRoomModel != null) {
+                                    // ignore: use_build_context_synchronously
+                                    toChatRoom(
+                                      context,
+                                      searchedUser,
+                                      chatRoomModel,
+                                    );
+                                  }
                                 },
                                 leading: Hero(
                                   tag: searchedUser.userName.toString(),
