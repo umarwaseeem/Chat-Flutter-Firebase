@@ -31,13 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             IconButton(
               onPressed: () async {
-                await FirebaseAuth.instance.signOut().then((value) {
-                  // set isOnline = false
-                  FirebaseFirestore.instance
-                      .collection("users")
-                      .doc(widget.firebaseUser!.uid)
-                      .update({"isOnline": false});
-                });
+                await FirebaseAuth.instance.signOut().then(
+                  (value) {
+                    // set isOnline = false
+                    FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(widget.firebaseUser!.uid)
+                        .update({"isOnline": false});
+                  },
+                );
                 // ignore: use_build_context_synchronously
                 Navigator.popUntil(
                   context,
@@ -99,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           } else {
                             if (data.hasData) {
                               UserModel targetUser = data.data as UserModel;
-                              return ListTile(
+                              // arrange the latest messages on top
+                              return InkWell(
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -113,12 +116,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   );
                                 },
-                                leading: CircleAvatar(
-                                  backgroundImage:
-                                      NetworkImage(targetUser.userDpUrl!),
+                                onLongPress: () {
+                                  // delete chat room
+                                  FirebaseFirestore.instance
+                                      .collection("chatRooms")
+                                      .doc(chatRoomModel.chatRoomId)
+                                      .delete();
+                                },
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(targetUser.userDpUrl!),
+                                  ),
+                                  title: Text(targetUser.userName!),
+                                  subtitle: Text(chatRoomModel.lastMessage!),
                                 ),
-                                title: Text(targetUser.userName!),
-                                subtitle: Text(chatRoomModel.lastMessage!),
                               );
                             } else if (data.hasError) {
                               return MySnackbar.faliureSnackBar(

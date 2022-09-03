@@ -169,7 +169,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 trailing: const Icon(Icons.arrow_right),
                                 title: Text(searchedUser.userName.toString()),
                                 subtitle: Text(
-                                  chatRoom?.lastMessage.toString() ?? "empty",
+                                  searchedUser.userEmail.toString(),
                                 ),
                               );
                             },
