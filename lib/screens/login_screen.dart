@@ -113,7 +113,11 @@ class _LoginScreenState extends State<LoginScreen> {
           .get();
       UserModel userModel =
           UserModel.fromMap(userData.data() as Map<String, dynamic>);
-
+      // set isOnline to true
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(userId)
+          .update({"isOnline": true});
       ScaffoldMessenger.of(context).showSnackBar(loginSnackBar);
 
       toHomeScreen(userModel, credential.user!);

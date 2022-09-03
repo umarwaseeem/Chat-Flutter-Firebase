@@ -82,6 +82,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         userName: name,
         userDpUrl: "",
         password: password,
+        isOnline: true,
       );
 
       await FirebaseFirestore.instance

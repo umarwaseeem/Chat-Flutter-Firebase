@@ -27,11 +27,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Home'),
+          title: Text('Welcome ${widget.userModel!.userName}'),
           actions: [
             IconButton(
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+                await FirebaseAuth.instance.signOut().then((value) {
+                  // set isOnline = false
+                  FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(widget.firebaseUser!.uid)
+                      .update({"isOnline": false});
+                });
                 // ignore: use_build_context_synchronously
                 Navigator.popUntil(
                   context,

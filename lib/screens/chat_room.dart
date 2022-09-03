@@ -32,8 +32,6 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController messageController = TextEditingController();
 
-  bool online = true;
-
   @override
   void initState() {
     messageController.text = "";
@@ -92,21 +90,53 @@ class _ChatRoomState extends State<ChatRoom> {
       appBar: AppBar(
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundImage:
-                  NetworkImage(widget.targetUser.userDpUrl.toString()),
-            ),
+            widget.targetUser.userDpUrl.toString().isNotEmpty
+                ? CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(widget.targetUser.userDpUrl.toString()),
+                  )
+                : const CircleAvatar(
+                    backgroundColor: Colors.grey,
+                    child: Icon(Icons.person),
+                  ),
             const SizedBox(width: 15),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.targetUser.userName.toString()),
-                if (online)
-                  const Text(
-                    "Online",
-                    style: TextStyle(fontSize: 12, color: Colors.green),
-                  ),
+                StreamBuilder(
+                  // get user isOnline status
+                  stream: FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(widget.targetUser.userId)
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    // red color for offline , green color for online
+                    return snapshot.hasData
+                        ? snapshot.data!.get("isOnline")
+                            ? const Text(
+                                "Online",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 12,
+                                ),
+                              )
+                            : const Text(
+                                "Offline",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                ),
+                              )
+                        : const Text(
+                            "Offline",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          );
+                  },
+                ),
               ],
             ),
           ],
