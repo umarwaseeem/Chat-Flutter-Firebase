@@ -4,6 +4,7 @@ import 'package:app/models/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/chat_room_model.dart';
@@ -59,7 +60,7 @@ class _ChatRoomState extends State<ChatRoom> {
       );
 
       // await not used, can store message when internet not available
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(widget.chatRoom?.chatRoomId)
           .collection("messages")
@@ -74,7 +75,7 @@ class _ChatRoomState extends State<ChatRoom> {
       );
 
       widget.chatRoom?.lastMessage = message;
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(widget.chatRoom?.chatRoomId)
           .set(
@@ -83,7 +84,7 @@ class _ChatRoomState extends State<ChatRoom> {
     }
   }
 
-  var opacityInitial = 0.0;
+  var timeFormat = DateFormat("hh:mm a");
 
   @override
   Widget build(BuildContext context) {
@@ -141,60 +142,98 @@ class _ChatRoomState extends State<ChatRoom> {
                             querySnapshot.docs[index].data()
                                 as Map<String, dynamic>,
                           );
-                          return InkWell(
-                            onLongPress: () {
-                              FirebaseFirestore.instance
-                                  .collection("chatRooms")
-                                  .doc(widget.chatRoom?.chatRoomId)
-                                  .collection("messages")
-                                  .doc(currentMessage.messageId)
-                                  .delete();
-                            },
-                            child: Row(
-                              mainAxisAlignment: currentMessage.sender ==
-                                      widget.userModel.userId
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
+                          return Row(
+                            mainAxisAlignment:
+                                currentMessage.sender == widget.userModel.userId
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              InkWell(
+                                onLongPress: () async {
+                                  await FirebaseFirestore.instance
+                                      .collection("chatRooms")
+                                      .doc(widget.chatRoom?.chatRoomId)
+                                      .collection("messages")
+                                      .doc(currentMessage.messageId)
+                                      .delete();
+                                },
+                                onDoubleTap: () async {
+                                  // edit message
+                                  if (messageController.text.isNotEmpty) {
+                                    await FirebaseFirestore.instance
+                                        .collection("chatRooms")
+                                        .doc(widget.chatRoom?.chatRoomId)
+                                        .collection("messages")
+                                        .doc(currentMessage.messageId)
+                                        .update({
+                                      "text": messageController.text,
+                                    });
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(20),
+                                splashColor: Colors.green,
+                                child: Container(
                                   margin: const EdgeInsets.all(10),
-                                  // alignment: (currentMessage.sender ==
-                                  //         widget.userModel.userId)
-                                  //     ? Alignment.centerRight
-                                  //     : Alignment.centerLeft,
-                                  constraints: const BoxConstraints(
-                                    maxWidth: 250,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: (currentMessage.sender ==
-                                            widget.userModel.userId)
-                                        ? Colors.red
-                                        : Colors.blue,
-                                  ),
-                                  child: Text(
-                                    currentMessage.text.toString(),
-                                    textAlign: currentMessage.sender ==
+                                  child: Column(
+                                    crossAxisAlignment: currentMessage.sender ==
                                             widget.userModel.userId
-                                        ? TextAlign.end
-                                        : TextAlign.start,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        // alignment: (currentMessage.sender ==
+                                        //         widget.userModel.userId)
+                                        //     ? Alignment.centerRight
+                                        //     : Alignment.centerLeft,
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 250,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                          horizontal: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.black,
+                                            width: 2,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: (currentMessage.sender ==
+                                                  widget.userModel.userId)
+                                              ? Colors.red
+                                              : Colors.blue,
+                                        ),
+                                        child: Text(
+                                          currentMessage.text.toString(),
+                                          textAlign: currentMessage.sender ==
+                                                  widget.userModel.userId
+                                              ? TextAlign.end
+                                              : TextAlign.start,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        //  + ${DateTime.parse(currentMessage.sentTime.toString()).second} + ${DateTime.parse(currentMessage.sentTime.toString()).millisecond}
+                                        timeFormat
+                                            .format(currentMessage.sentTime!),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           );
                         },
                       );
@@ -213,7 +252,9 @@ class _ChatRoomState extends State<ChatRoom> {
               controller: messageController,
               decoration: InputDecoration(
                 prefixIcon: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // record voice message
+                  },
                   icon: const Icon(
                     Icons.keyboard_voice_rounded,
                   ),
