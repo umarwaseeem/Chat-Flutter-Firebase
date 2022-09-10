@@ -12,6 +12,10 @@ A full stack real time chatting app with Flutter and Firebase CRUD operaions.
 - Offline status on signout
 - Online status on signup or signin
 
+## Some sneaky features 🤪:
+- Long press a message to delete it if its sent by the other user
+- Type the text you want to edit with and double a text to change it, works for both reciever and sender
+
 ## Screenshots:
 
 <p>
