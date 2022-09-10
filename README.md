@@ -2,6 +2,10 @@
 
 A full stack real time chatting app with Flutter and Firebase CRUD operaions.
 
+## Developer:
+
+<a href="https://github.com/Umar-Waseem">Umar Waseem</a>
+
 ## Features:
 - Login
 - SignUp
