@@ -20,6 +20,19 @@ A full stack real time chatting app with Flutter and Firebase CRUD operaions.
 - Long press a message to delete it if its sent by the other user
 - Type the text you want to edit with and double a text to change it, works for both reciever and sender
 
+## Packages Used:
+
+- cupertino_icons: ^1.0.2
+- firebase_auth: ^3.7.0
+- firebase_core: ^1.21.1
+- cloud_firestore: ^3.4.6
+- image_picker: ^0.8.5+3
+- image_cropper: ^3.0.0
+- firebase_storage: ^10.3.7
+- awesome_snackbar_content: ^0.0.8
+- uuid: ^3.0.6
+- intl: ^0.17.0
+
 ## Screenshots:
 
 <p>
