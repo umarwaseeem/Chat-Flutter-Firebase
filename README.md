@@ -1,5 +1,7 @@
 # Chat With Flutter And Firebase
 
+`Good Sample Project For Beginners`
+
 A full stack real time chatting app with Flutter and Firebase CRUD operaions.
 
 ## Developer:
