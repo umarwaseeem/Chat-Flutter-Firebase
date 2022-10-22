@@ -146,19 +146,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Login',
+                      'Login to your',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Login to your account',
+                      'Account',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -178,9 +180,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: 'Password',
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: const [
+                        Text(
+                          'Forgot password?',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
                     loading
-                        ? const CircularProgressIndicator()
+                        ? const Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator())
                         : SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -195,37 +212,34 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
                                     }
                                   : null,
-                              child: const Text('Login'),
+                              child: const Text(
+                                'Login',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 18),
+                              ),
                             ),
                           ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Don\'t have an account?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      child: const Text('Sign up'),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          CupertinoPageRoute(
-                            fullscreenDialog: true,
-                            builder: (context) => const SignUpScreen(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          child: const Text(
+                            'New to app? register',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
                           ),
-                        );
-                      },
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              CupertinoPageRoute(
+                                fullscreenDialog: true,
+                                builder: (context) => const SignUpScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
