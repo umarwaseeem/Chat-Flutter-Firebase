@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:app/models/firebase_helper.dart';
 import 'package:app/models/user_model.dart';
 import 'package:app/screens/chat_room.dart';
