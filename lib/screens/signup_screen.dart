@@ -148,19 +148,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'SignUp',
+                      'Create your',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Make A New Account',
+                      'Account',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -196,7 +198,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
                     loading
-                        ? const CircularProgressIndicator()
+                        ? const Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator())
                         : SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -211,29 +215,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     }
                                   : null,
-                              child: const Text('Sign Up'),
+                              child: const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 18),
+                              ),
                             ),
                           ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Have an account?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      child: const Text('Login'),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          CupertinoPageRoute(
-                            fullscreenDialog: true,
-                            builder: (context) => const LoginScreen(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          child: const Text(
+                            'Already a user? login',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
                           ),
-                        );
-                      },
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              CupertinoPageRoute(
+                                fullscreenDialog: true,
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
