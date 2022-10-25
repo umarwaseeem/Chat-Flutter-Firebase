@@ -75,6 +75,13 @@ class _HomeScreenState extends State<HomeScreen> {
               } else {
                 if (snapshot.hasData) {
                   QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
+                  if (querySnapshot.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "No chats yet. Start chatting with someone",
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     itemCount: querySnapshot.docs.length,
                     itemBuilder: (BuildContext context, int index) {
